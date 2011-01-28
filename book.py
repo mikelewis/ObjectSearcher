@@ -3,26 +3,81 @@ from BTrees.OOBTree import OOBTree
 from ZODB import FileStorage, DB
 import transaction
 
-class Book(Persistent):
-  indexedClasses = set()
+class Book(object):
   storage = None
   db = None
   dbroot = None
   conn = None
   indexdb = None
+  __shared_state = {}
   def __init__(self):
-    self.storage = FileStorage.FileStorage('indexes.db')
-    self.db = DB(self.storage)
-    self.conn = self.db.open()
-    self.dbroot = self.conn.root()
+    self.__dict__ = self.__shared_state
+    if not self.storage:
+      self.storage = FileStorage.FileStorage('indexes.db')
+    if not self.db:
+      self.db = DB(self.storage)
+    if not self.conn:
+      self.conn = self.db.open()
+    if not self.dbroot:
+      self.dbroot = self.conn.root()
 
     if not self.dbroot.has_key('indexdb'):
       self.dbroot['indexdb'] = OOBTree()
-    self.indexdb = self.dbroot['indexdb']
+    if not self.indexdb:
+      self.indexdb = self.dbroot['indexdb']
 
   def addData(self, data):
-    klassName = data.__class__.__name__
-    self.indexedClasses.add(klassName)
-    for indexable in data.indexable:
-      self.indexdb.setdefault(klassName, OOBTree())[getattr(data, indexable)] = data
+    # klassName = "Person"
+    klassName = self.getClassName(data) 
+    if klassName not in self.indexdb:
+      print "Adding " + klassName
+      self.indexdb[klassName] = OOBTree()
+    print "DEBUGGGG===="
+    print list(self.indexdb.keys())
+    #self.indexedClasses.add(klassName)
+    #for indexable in data.indexable:
+      # indexdb = {"mike" : 20, "jouhan" : 22}
+      # indexdb.get("mike") => 20
+      # indexdb.get("alex", None) => None
+      #if self.indexdb.get(klassName, None) is None:
+      #  self.indexdb[klassName] = OOBTree()
+      # p = Person(); p.age = 20; p.name = "Mike"; p.height = "5'11" 
+      # print p.age => 20
+      # print getattr(p, "height") => "5'11"
+      #if getattr(data, indexable):
+      #  self.indexdb.get(klassName).setdefault(indexable, OOBTree())[getattr(data, indexable)] = data
+
+  def updateIndexedValue(self, obj, attrName, newAttrValue):
+    print "===DBUG UPDATE INDEXED VALUE"
+    print "updating obj" + str(obj) + " on attr " + attrName + " with new value" + str(newAttrValue)
+    klassName = self.getClassName(obj)
+    # gets that classes index tree
+    klassIndex = self.indexdb.get(klassName)
+    oldValue = obj.__dict__.get(attrName)
+    print "Printing old value of " + attrName + " for " + str(obj)
+    print oldValue
+    if attrName in klassIndex and oldValue in klassIndex[attrName]:
+      del klassIndex[attrName][oldValue]
+    #this will run no matter if the attribute exist or not
+    self.setIndexValue(obj, attrName, newAttrValue)
+
+  def setIndexValue(self, obj, name, value):
+    klassName = obj.__class__.__name__
+    self.indexdb.get(klassName).setdefault(name, OOBTree())[value] = obj
+
+  #TODO
+  def removeIndexedValue(self, obj, name, value):
+    klassName = self.getClassName(obj)
+    if self.index.get(klassName).get(name, None) and self.indexdb.get(klassName).get(name).get(value, None):
+      del self.index.get(klassName)[name][value]
+
+  def createObject(self, klass, *args, **kwargs):
+    obj = klass(*args, **kwargs)
+    self.addData(obj)
+    return obj
+
+  def getClassName(self, obj):
+    return obj.__class__.__name__
+
+  def commitTransaction(self):
     transaction.commit()
