@@ -27,7 +27,6 @@ class Book(object):
       self.indexdb = self.dbroot['indexdb']
 
   def addData(self, data):
-    # klassName = "Person"
     klassName = self.getClassName(data) 
     if klassName not in self.indexdb:
       self.indexdb[klassName] = OOBTree()
@@ -51,11 +50,6 @@ class Book(object):
     klassName = self.getClassName(obj)
     if self.index.get(klassName).get(name, None) and self.indexdb.get(klassName).get(name).get(value, None):
       del self.index.get(klassName)[name][value]
-
-  def createObject(self, klass, *args, **kwargs):
-    obj = klass(*args, **kwargs)
-    self.addData(obj)
-    return obj
 
   def getClassName(self, obj):
     return obj.__class__.__name__
