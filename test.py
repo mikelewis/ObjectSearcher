@@ -1,11 +1,11 @@
 from book import Book
-from persistent_indexer import PersistentIndexer
+from indexable import Indexable
 
 # Test Class... nothing else
-class Person(PersistentIndexer):
+class Person(Indexable):
   name = None
   age = None
-  indexable = ('name','age', )
+  indexableAttrs = ('name','age', )
 
 if __name__ == '__main__':
   #p = Person()
