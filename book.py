@@ -12,19 +12,18 @@ class Book(object):
   __shared_state = {}
   def __init__(self):
     self.__dict__ = self.__shared_state
-    if not self.storage:
-      self.storage = FileStorage.FileStorage('indexes.db')
-    if not self.db:
-      self.db = DB(self.storage)
-    if not self.conn:
-      self.conn = self.db.open()
-    if not self.dbroot:
-      self.dbroot = self.conn.root()
+    self.storage = self.storage or FileStorage.FileStorage('indexes.db')
+    self.db = self.db or DB(self.storage)
+    self.conn = self.conn or self.db.open()
+    self.dbroot = self.dbroot or self.conn.root()
 
     if not self.dbroot.has_key('indexdb'):
       self.dbroot['indexdb'] = OOBTree()
     if not self.indexdb:
       self.indexdb = self.dbroot['indexdb']
+  
+  def __del__(self):
+    self.db.close()
 
   def addData(self, data):
     klassName = self.getClassName(data) 
@@ -42,7 +41,7 @@ class Book(object):
     self.setIndexValue(obj, attrName, newAttrValue)
 
   def setIndexValue(self, obj, name, value):
-    klassName = obj.__class__.__name__
+    klassName = self.getClassName(obj)
     self.indexdb.get(klassName).setdefault(name, OOBTree())[value] = obj
 
   #TODO
