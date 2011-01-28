@@ -30,32 +30,13 @@ class Book(object):
     # klassName = "Person"
     klassName = self.getClassName(data) 
     if klassName not in self.indexdb:
-      print "Adding " + klassName
       self.indexdb[klassName] = OOBTree()
-    print "DEBUGGGG===="
-    print list(self.indexdb.keys())
-    #self.indexedClasses.add(klassName)
-    #for indexable in data.indexable:
-      # indexdb = {"mike" : 20, "jouhan" : 22}
-      # indexdb.get("mike") => 20
-      # indexdb.get("alex", None) => None
-      #if self.indexdb.get(klassName, None) is None:
-      #  self.indexdb[klassName] = OOBTree()
-      # p = Person(); p.age = 20; p.name = "Mike"; p.height = "5'11" 
-      # print p.age => 20
-      # print getattr(p, "height") => "5'11"
-      #if getattr(data, indexable):
-      #  self.indexdb.get(klassName).setdefault(indexable, OOBTree())[getattr(data, indexable)] = data
 
   def updateIndexedValue(self, obj, attrName, newAttrValue):
-    print "===DBUG UPDATE INDEXED VALUE"
-    print "updating obj" + str(obj) + " on attr " + attrName + " with new value" + str(newAttrValue)
     klassName = self.getClassName(obj)
     # gets that classes index tree
     klassIndex = self.indexdb.get(klassName)
     oldValue = obj.__dict__.get(attrName)
-    print "Printing old value of " + attrName + " for " + str(obj)
-    print oldValue
     if attrName in klassIndex and oldValue in klassIndex[attrName]:
       del klassIndex[attrName][oldValue]
     #this will run no matter if the attribute exist or not
