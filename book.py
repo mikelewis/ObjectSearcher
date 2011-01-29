@@ -2,6 +2,7 @@ from persistent import Persistent
 from BTrees.OOBTree import OOBTree
 from ZODB import FileStorage, DB
 import transaction
+import os
 
 class Book(object):
   storage = None
@@ -9,14 +10,18 @@ class Book(object):
   dbroot = None
   conn = None
   indexdb = None
+  database_name = None
+  num_book_instances = {"count":0}
   __shared_state = {}
   def __init__(self):
     self.__dict__ = self.__shared_state
+    self.num_book_instances['count'] += 1
     self._rebuild_db()
 
 
   def _rebuild_db(self):
-    self.storage = self.storage or FileStorage.FileStorage('indexes.db')
+    self.database_name = os.environ.get("object_searcher_database") or "indexes.db"
+    self.storage = self.storage or FileStorage.FileStorage(self.database_name)
     self.db = self.db or DB(self.storage)
     self.conn = self.conn or self.db.open()
     self.dbroot = self.dbroot or self.conn.root()
@@ -25,10 +30,10 @@ class Book(object):
     if not self.indexdb:
       self.indexdb = self.dbroot['indexdb']
 
-  
+
   def __del__(self):
     pass
-   # self.db.close()
+  # self.db.close()
 
   def addData(self, data):
     klassName = self.getClassName(data) 

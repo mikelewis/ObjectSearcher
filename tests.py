@@ -1,6 +1,11 @@
 from book import Book
 from indexable import Indexable
 import unittest
+import os
+
+
+# Set database name to test
+os.environ['object_searcher_database'] = "tests.db"
 
 class Person(Indexable):
   name = None
@@ -31,6 +36,10 @@ class TestOjectSearcher(unittest.TestCase):
     horse = Animal("Horse", "Brown")
     fox = Animal("Fox", "Red")
 
+  def tearDown(self):
+    #to destroy the database that was created for testing AKA ISOLATION!
+    del self.book.dbroot['indexdb']
+
   def test_index_has_classes(self):
     klasses = ('Person', )
     for klass in klasses:
@@ -45,10 +54,24 @@ class TestOjectSearcher(unittest.TestCase):
     self.assertTrue("name" in self.book.indexdb["Person"])
 
   def test_index_has_declared_values_for_person(self):
-    self.assertEqual(['Jouhan', 'Mike'], list(self.book.indexdb['Person']['name'].keys()))
+    # its complaing because Tim is in the database (look at 63)
+    self.assertEqual(['Jouhan', "Mike"], list(self.book.indexdb['Person']['name'].keys()))
 
   def test_index_has_declared_objects_for_person(self):
     self.assertEqual(id(self.person), id(self.book.indexdb['Person']['name'].values('Mi')[0]))
+
+  def test_index_can_track_changed_ojects(self):
+    mike = self.book.indexdb['Person']['name']['Mike']
+    oldAge = mike.age
+    #change age
+    mike.age = 25
+    self.assertEqual(self.book.indexdb['Person']['name']['Mike'].age, 25)
+
+  def test_index_update_indexableAttributes(self):
+    mike = self.book.indexdb['Person']['name']['Mike']
+    mike.name = "Tim"
+    self.assertTrue("Tim" in self.book.indexdb['Person']['name'].keys())
+    self.assertTrue("Mike" not in self.book.indexdb['Person']['name'].keys())
 
 
 
