@@ -1,5 +1,6 @@
 from book import Book
 from indexable import Indexable
+from persistent.mapping import PersistentMapping
 import unittest
 import os
 
@@ -38,7 +39,7 @@ class TestOjectSearcher(unittest.TestCase):
 
   def tearDown(self):
     #to destroy the database that was created for testing AKA ISOLATION!
-    del self.book.dbroot['indexdb']
+    self.book.indexdb.clear()
 
   def test_index_has_classes(self):
     klasses = ('Person', )
@@ -58,20 +59,32 @@ class TestOjectSearcher(unittest.TestCase):
     self.assertEqual(['Jouhan', "Mike"], list(self.book.indexdb['Person']['name'].keys()))
 
   def test_index_has_declared_objects_for_person(self):
-    self.assertEqual(id(self.person), id(self.book.indexdb['Person']['name'].values('Mi')[0]))
+    self.assertEqual(self.person.indexable_data['id'], self.book.indexdb['Person']['name']['Mike'].values()[0].indexable_data['id'])
 
   def test_index_can_track_changed_ojects(self):
-    mike = self.book.indexdb['Person']['name']['Mike']
+    mike = self.book.indexdb['Person']['name']['Mike'].values()[0]
     oldAge = mike.age
     #change age
     mike.age = 25
-    self.assertEqual(self.book.indexdb['Person']['name']['Mike'].age, 25)
+    self.assertEqual(self.book.indexdb['Person']['name']['Mike'].values()[0].age, 25)
 
   def test_index_update_indexableAttributes(self):
-    mike = self.book.indexdb['Person']['name']['Mike']
+    mike = self.book.indexdb['Person']['name']['Mike'].values()[0]
     mike.name = "Tim"
     self.assertTrue("Tim" in self.book.indexdb['Person']['name'].keys())
     self.assertTrue("Mike" not in self.book.indexdb['Person']['name'].keys())
+
+  def test_update_index_with_none_value(self):
+    mike = self.book.indexdb['Person']['name']['Mike'].values()[0]
+    mike.name = None
+    self.assertTrue(None not in self.book.indexdb['Person']['name'])
+    self.assertTrue("Mike" not in self.book.indexdb['Person']['name'])
+
+  def test_index_supports_multiple_values_per_key(self):
+    mikePerson = Person()
+    mikePerson.name = "Mike" #aka DUPLICATE VALUE FOR THAT ATTR
+    mikePerson.age = 99
+    self.assertTrue(len(self.book.indexdb['Person']['name']['Mike'].values()) == 2)
 
 
 

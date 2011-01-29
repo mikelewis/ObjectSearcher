@@ -1,4 +1,4 @@
-from persistent import Persistent
+from persistent.mapping import PersistentMapping
 from BTrees.OOBTree import OOBTree
 from ZODB import FileStorage, DB
 import transaction
@@ -45,14 +45,18 @@ class Book(object):
     # gets that classes index tree
     klassIndex = self.indexdb.get(klassName)
     oldValue = obj.__dict__.get(attrName)
-    if attrName in klassIndex and oldValue in klassIndex[attrName]:
-      del klassIndex[attrName][oldValue]
-    #this will run no matter if the attribute exist or not
-    self.setIndexValue(obj, attrName, newAttrValue)
+    if newAttrValue is not None:
+      if attrName in klassIndex and oldValue != newAttrValue and oldValue in klassIndex[attrName]:
+        del klassIndex[attrName][oldValue]
+      #this will run no matter if the attribute exist or not
+      self.setIndexValue(obj, attrName, newAttrValue)
+    else:
+      if oldValue in klassIndex[attrName]:
+        del klassIndex[attrName][oldValue]
 
   def setIndexValue(self, obj, name, value):
     klassName = self.getClassName(obj)
-    self.indexdb.get(klassName).setdefault(name, OOBTree())[value] = obj
+    self.indexdb.get(klassName).setdefault(name, OOBTree()).setdefault(value, PersistentMapping())[obj.indexable_data['id']]= obj
 
   #TODO
   def removeIndexedValue(self, obj, name, value):

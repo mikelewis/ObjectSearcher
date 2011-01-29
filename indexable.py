@@ -1,10 +1,14 @@
 from book import Book
+from persistent.mapping import PersistentMapping
 from persistent import Persistent
+import uuid
 
 class Indexable(Persistent):
   # prepend _v_ to make it volatilive
   _v_book = None
+  indexable_data = PersistentMapping()
   def __init__(self):
+    self.indexable_data = PersistentMapping({"id" : str(uuid.uuid4())})
     self._v_book = Book()
     self._v_book.addData(self)
   def __setattr__(self, name, value):
