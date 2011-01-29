@@ -12,18 +12,23 @@ class Book(object):
   __shared_state = {}
   def __init__(self):
     self.__dict__ = self.__shared_state
+    self._rebuild_db()
+
+
+  def _rebuild_db(self):
     self.storage = self.storage or FileStorage.FileStorage('indexes.db')
     self.db = self.db or DB(self.storage)
     self.conn = self.conn or self.db.open()
     self.dbroot = self.dbroot or self.conn.root()
-
     if not self.dbroot.has_key('indexdb'):
       self.dbroot['indexdb'] = OOBTree()
     if not self.indexdb:
       self.indexdb = self.dbroot['indexdb']
+
   
   def __del__(self):
-    self.db.close()
+    pass
+   # self.db.close()
 
   def addData(self, data):
     klassName = self.getClassName(data) 
