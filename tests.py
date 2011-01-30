@@ -106,7 +106,7 @@ class TestOjectSearcher(unittest.TestCase):
     person1.name = "Jouhan"
     person1.age = 22
     person2 = Person()
-    person2.age = "Alex"
+    person2.name = "Alex"
     person2.age = 20
     horse = Animal("Horse", "Brown")
     fox = Animal("Fox", "Red")
@@ -130,7 +130,7 @@ class TestOjectSearcher(unittest.TestCase):
 
   def test_index_has_declared_values_for_person(self):
     # its complaing because Tim is in the database (look at 63)
-    self.assertEqual(['Jouhan', "Mike"], list(self.book.indexdb['Person']['name'].keys()))
+    self.assertEqual(['Alex', 'Jouhan', "Mike"], list(self.book.indexdb['Person']['name'].keys()))
 
   def test_index_has_declared_objects_for_person(self):
     self.assertEqual(self.person.__hash__(), self.book.indexdb['Person']['name']['Mike'].values()[0].__hash__())
@@ -145,8 +145,8 @@ class TestOjectSearcher(unittest.TestCase):
   def test_index_update_indexableAttributes(self):
     mike = self.book.indexdb['Person']['name']['Mike'].values()[0]
     mike.name = "Tim"
-    self.assertTrue("Tim" in self.book.indexdb['Person']['name'].keys())
-    self.assertTrue("Mike" not in self.book.indexdb['Person']['name'].keys())
+    self.assertTrue(mike.__hash__() in self.book.indexdb['Person']['name']['Tim'].keys())
+    self.assertTrue(mike.__hash__() not in self.book.indexdb['Person']['name']['Mike'].keys())
 
   def test_update_index_with_none_value(self):
     mike = self.book.indexdb['Person']['name']['Mike'].values()[0]

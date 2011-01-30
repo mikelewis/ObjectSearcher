@@ -47,7 +47,7 @@ class Book(object):
     oldValue = obj.__dict__.get(attrName)
     if newAttrValue is not None:
       if attrName in klassIndex and oldValue != newAttrValue and oldValue in klassIndex[attrName]:
-        del klassIndex[attrName][oldValue]
+        del klassIndex[attrName][oldValue][obj.__hash__()]
       #this will run no matter if the attribute exist or not
       self.setIndexValue(obj, attrName, newAttrValue)
     else:
