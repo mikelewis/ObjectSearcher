@@ -73,10 +73,11 @@ class Searcher(object):
         queryIterResult = self.where(queryIter.strip())
         results = self._union(results, queryIterResult)
 
+
     elif "OR" in query:
-      splitAnds = query.split("OR")
-      results = self.where(splitAnds.pop(0).strip())
-      for queryIter in splitAnds:
+      splitOrs = query.split("OR")
+      results = self.where(splitOrs.pop(0).strip())
+      for queryIter in splitOrs:
         queryIterResult = self.where(queryIter.strip())
         results = self._intersection(results, queryIterResult)
 

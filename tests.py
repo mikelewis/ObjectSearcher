@@ -39,6 +39,7 @@ class TestSearcher(unittest.TestCase):
     self.jouhan = Person("Jouhan", 22)
     self.jouhan1 = Person("Jouhan", 74)
     self.alex = Person("Alex", 15)
+    self.tim = Person("Tim", 100)
 
   def tearDown(self):
     #to destroy the database that was created for testing AKA ISOLATION!
@@ -136,9 +137,7 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").where("age = 99 OR name = Jouhan OR name = Alex")
     self.assertTrue(len(people) == 4)
 
-
-
-class TestOjectSearcher(unittest.TestCase):
+class TestBook(unittest.TestCase):
   def setUp(self):
     self.book = Book()
     self.person = Person()
