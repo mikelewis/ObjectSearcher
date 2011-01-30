@@ -96,7 +96,6 @@ class TestSearcher(unittest.TestCase):
     self.alex.age = 16
     self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 1)
 
-
   def test_searcher_or_query_count(self):
     people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
     self.assertTrue(len(people) == 4)
@@ -109,7 +108,6 @@ class TestSearcher(unittest.TestCase):
   def test_searcher_and_query_count(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
     self.assertTrue(len(people) == 1)
-
 
   def test_searcher_and_query(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
