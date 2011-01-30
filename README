@@ -1,5 +1,78 @@
 Extending ZODB
 
+Authors:
+Mike Lewis
+Jouhan Allende
+
 Indexes your collection of data so you can easily search, filter and run LINQesque type queries on your python objects.
 
-Far far far from being done. Just started 1/26
+Requirements: 
+- ZODB
+
+You may obtain this by doing easy_install ZODB3
+
+Tested with:
+Python 2.6.1, Mac OSX 10.6.6
+
+Setup:
+import Indexable by putting this line on the top:
+from indexable import Indexable
+
+If you want any class to be indexed and searchable, you have that class inherit from Indexable and include an indexableAttrs tuple for the attributes you want to index on. If you have your own constructor, make sure you call the parents constructor before anything else. From a users perspective, that is all you need to do.
+
+An example of this is:
+
+
+class Person(Indexable):
+  firstName = None
+  name = None
+  age = None
+  indexableAttrs = ('name', 'age', 'firstName', )
+  def __init__(self, name=None, age=None, firstName=None):
+    Indexable.__init__(self)
+    self.name = name
+    self.age = age
+    self.firstName = firstName
+
+
+
+
+Explanation of Code:
+indexable.py -
+contains a base class for all classes wanting to be indexed. It overwrites the constructor to setup the proper attributes such as the Book() and registering that class name with the system. Since all object writes are passed through __setattr__(), it overwrite __setattr__() to catch all changes within that object. From there it can delagate what to do with the changed data, which then sends the data off to the Book() instance.
+
+book.py - 
+  This file contains the book class, which abstracts all the B-Tree data that is stored on file/memory. It will add new classes and attributes if they aren't in the index already. It will also manage inserting and deleting values from the B-Tree. At the leaf nodes, the values are a dictionary, with the following key: value format:
+        
+        ObjectHash:Object
+
+  Since the object hash is unique, this allows for multiple objects to be stored for a single attribute value. Without this dictionary structure on the leaf nodes, there would only be one object per attribute value.
+
+searcher.py
+- This file contains the LINQesque abstractions that the user is going to interact with. From here you can run queries such as:
+
+  searcher.fromClass('Person').where("age >= 15 AND name = Mike")
+  searcher.fromClass('Person').select('name').where("age BETWEEN 1 AND 18")
+  searcher.fromClass('Person').select('name').where("name = Mike OR name = Jouhan")
+
+  Currently, our extension allows for the following operations:
+    - = (Equality)
+    - > (Greater than)
+    - >= (Greathr Than or equal to)
+    - BETWEEN (Between two values)
+    - AND (an unlimited number of ANDS)
+    - OR (an unlimted number of ORS)
+  
+  and allows for:
+    - fromClass() (Determines which class you want to have) *required
+    - where() (Your filters) *required
+    - select() (Only select attributes only you want) *optional
+
+Has a stable and strong test suite with over 30 tests, covering all aspects of our extension. You can view this within tests.py
+
+You may run these tests by running: python tests.py
+
+
+!!!!!
+Sample application can be seen within sample.py
+!!!!!
