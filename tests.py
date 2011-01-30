@@ -10,13 +10,15 @@ from searcher import Searcher
 os.environ['object_searcher_database'] = "tests.db"
 
 class Person(Indexable):
+  firstName = None
   name = None
   age = None
-  indexableAttrs = ('name', 'age', )
-  def __init__(self, name=None, age=None):
+  indexableAttrs = ('name', 'age', 'firstName', )
+  def __init__(self, name=None, age=None, firstName=None):
     Indexable.__init__(self)
     self.name = name
     self.age = age
+    self.firstName = firstName
 
 class Animal(Indexable):
   kind = None
@@ -33,6 +35,7 @@ class TestSearcher(unittest.TestCase):
     self.searcher = Searcher()
     self.mikeObj = Person("Mike", 15)
     self.mikeObj2 = Person("Mike", 99)
+    self.mikeObj3 = Person("Mike", 15, "Michael")
     self.jouhan = Person("Jouhan", 22)
     self.jouhan1 = Person("Jouhan", 74)
     self.alex = Person("Alex", 15)
@@ -42,7 +45,7 @@ class TestSearcher(unittest.TestCase):
     self.searcher.index.clear()
 
   def test_searcher_expecting_multiple_values(self):
-    self.assertEquals(len(self.searcher.fromClass("Person").where("age = 15")), 2)
+    self.assertEquals(len(self.searcher.fromClass("Person").where("age = 15")), 3)
 
   def test_searcher_excepting_no_values(self):
     self.assertEquals(len(self.searcher.fromClass('Person').where("age = 20")), 0)
@@ -92,13 +95,13 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_change_attributes(self):
     people = self.searcher.fromClass("Person").where("age = 15")
-    self.assertTrue(len(people) == 2)
+    self.assertTrue(len(people) == 3)
     self.alex.age = 16
-    self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 1)
+    self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 2)
 
   def test_searcher_or_query_count(self):
     people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
-    self.assertTrue(len(people) == 4)
+    self.assertTrue(len(people) == 5)
   
   def test_searcher_or_query(self):
     people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
@@ -107,12 +110,31 @@ class TestSearcher(unittest.TestCase):
  
   def test_searcher_and_query_count(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
-    self.assertTrue(len(people) == 1)
+    self.assertTrue(len(people) == 2)
 
   def test_searcher_and_query(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
     hashes = [person.__hash__() for person in people]
     self.assertTrue(self.mikeObj.__hash__() in hashes and self.alex.__hash__() not in hashes)
+
+  def test_searcher_multiple_ands_query(self):
+    people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike AND firstName = Michael")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj3.__hash__() in hashes)
+
+  def test_searcher_multiple_ands_query_count(self):
+    people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike AND firstName = Michael")
+    self.assertTrue(len(people) == 1)
+
+
+  def test_searcher_multiple_or_query(self):
+    people = self.searcher.fromClass("Person").where("age = 99 OR name = Jouhan OR name = Alex")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj2.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes and self.alex.__hash__() in hashes)
+
+  def test_searcher_multiple_or_query_count(self):
+    people = self.searcher.fromClass("Person").where("age = 99 OR name = Jouhan OR name = Alex")
+    self.assertTrue(len(people) == 4)
 
 
 

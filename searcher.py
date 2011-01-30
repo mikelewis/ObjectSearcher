@@ -65,18 +65,21 @@ class Searcher(object):
       value = int(value) if self._isInt(value) else value
       values = [value]
       results = self._parseQuery(attr, op, values)
-    elif len(splitQuery) == 7 and "OR" in query:
-      query1, query2 = query.split("OR")
-      firstResults = self.where(query1.strip())
-      secondResults = self.where(query2.strip())
-      results = self._intersection(firstResults, secondResults)
 
+    elif "AND" in query and "BETWEEN" not in query:
+      splitAnds = query.split("AND")
+      results = self.where(splitAnds.pop(0).strip())
+      for queryIter in splitAnds:
+        queryIterResult = self.where(queryIter.strip())
+        results = self._union(results, queryIterResult)
 
-    elif len(splitQuery) == 7 and "AND" in query:
-      query1, query2 = query.split("AND")
-      firstResults = self.where(query1.strip())
-      secondResults = self.where(query2.strip())
-      results = self._union(firstResults, secondResults)
+    elif "OR" in query:
+      splitAnds = query.split("OR")
+      results = self.where(splitAnds.pop(0).strip())
+      for queryIter in splitAnds:
+        queryIterResult = self.where(queryIter.strip())
+        results = self._intersection(results, queryIterResult)
+
 
     elif len(splitQuery) == 5:
       attr, op, value1, _, value2 = splitQuery
