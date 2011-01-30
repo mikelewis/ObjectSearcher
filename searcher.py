@@ -85,15 +85,26 @@ class Searcher(object):
       if value not in self.index[self.fromKlass][attr]:
         return []
       else:
-        return self.index[self.fromKlass][attr][value].values()
+        return self._formatReturnedData(self.index[self.fromKlass][attr][value].values())
     elif op == ">=":
-      return self._treeItemsToList(self.index[self.fromKlass][attr].values(value))
+      return self._formatReturnedData(self.index[self.fromKlass][attr].values(value))
     elif op == ">":
-      return self._treeItemsToList(self.index[self.fromKlass][attr].values(value, excludemin=True))
+      return self._formatReturnedData(self.index[self.fromKlass][attr].values(value, excludemin=True))
     elif op == "BETWEEN" and len(values) == 2:
-      return self._treeItemsToList(self.index[self.fromKlass][attr].values(values[0],values[1]))
+      return self._formatReturnedData(self.index[self.fromKlass][attr].values(values[0],values[1]))
     else:
       raise UnknownOperationError()
+
+  def _formatReturnedData(self, data):
+    # DONT HATE
+    retList = []
+    if "OOBTree" in str(type(data)):
+      retList = self._treeItemsToList(data)
+    else:
+      retList = data
+    if self.select_attrs:
+      retList = self._formatSelectData(retList)
+    return retList
 
   def _treeItemsToList(self, treeItems):
     retList = []
@@ -101,4 +112,7 @@ class Searcher(object):
       for resultItem in treeItem.values():
         retList.append(resultItem)
     return retList
+
+  def _formatSelectData(self, data):
+    return [dict(((attr, obj.__dict__.get(attr)) for attr in self.select_attrs)) for obj in data]
 

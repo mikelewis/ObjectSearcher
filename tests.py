@@ -31,8 +31,8 @@ class TestSearcher(unittest.TestCase):
 
   def setUp(self):
     self.searcher = Searcher()
-    self.mikeObj = Person("mike", 15)
-    self.mikeObj2 = Person("mike", 99)
+    self.mikeObj = Person("Mike", 15)
+    self.mikeObj2 = Person("Mike", 99)
     self.jouhan = Person("Jouhan", 22)
     self.jouhan1 = Person("Jouhan", 74)
     self.alex = Person("Alex", 15)
@@ -85,6 +85,10 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
     hashes = [person.__hash__() for person in people]
     self.assertTrue(self.mikeObj.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.alex.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+
+  def test_searcher_with_select_two_dicts(self):
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Mike")
+    self.assertTrue({"name" : "Mike", "age" : 15} in people and {"name" : "Mike", "age" : 99} in people)
 
 
     
@@ -160,3 +164,4 @@ class TestOjectSearcher(unittest.TestCase):
 
 if __name__ == '__main__':
   unittest.main()  
+
