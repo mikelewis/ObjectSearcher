@@ -3,8 +3,6 @@ from book import Book
 from indexable import Indexable
 import os
 
-os.environ['object_searcher_database'] = "tests.db"
-
 class IndexClassError(Exception):
   pass
 class IndexAttributeError(Exception):

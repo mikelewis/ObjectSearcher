@@ -34,6 +34,12 @@ class Person(Indexable):
     self.age = age
     self.firstName = firstName
 
+If you want to search your indexed objects import Searchable:
+from searcher import Searcher
+
+and instantiate an Searcher object:
+
+searcher = Searcher()
 
 
 
@@ -76,3 +82,6 @@ You may run these tests by running: python tests.py
 !!!!!
 Sample application can be seen within sample.py
 !!!!!
+
+Known Issues:
+- When marshalling the data from the file to Indexes, the hash for that object is recomputed, thus on second and more runs, we can't uniquely identify objects. This causes duplicated and other issues

@@ -20,7 +20,7 @@ class Book(object):
 
 
   def _rebuild_db(self):
-    self.database_name = os.environ.get("object_searcher_database") or "indexes.db"
+    self.database_name = os.environ.get("object_searcher_database", "indexes.db")
     self.storage = self.storage or FileStorage.FileStorage(self.database_name)
     self.db = self.db or DB(self.storage)
     self.conn = self.conn or self.db.open()

@@ -4,10 +4,10 @@ from persistent.mapping import PersistentMapping
 import unittest
 import os
 from searcher import Searcher
-
-
 # Set database name to test
 os.environ['object_searcher_database'] = "tests.db"
+
+
 
 class Person(Indexable):
   firstName = None
