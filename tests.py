@@ -3,6 +3,7 @@ from indexable import Indexable
 from persistent.mapping import PersistentMapping
 import unittest
 import os
+from searcher import Searcher
 
 
 # Set database name to test
@@ -11,7 +12,11 @@ os.environ['object_searcher_database'] = "tests.db"
 class Person(Indexable):
   name = None
   age = None
-  indexableAttrs = ('name', )
+  indexableAttrs = ('name', 'age', )
+  def __init__(self, name=None, age=None):
+    Indexable.__init__(self)
+    self.name = name
+    self.age = age
 
 class Animal(Indexable):
   kind = None
@@ -21,6 +26,27 @@ class Animal(Indexable):
     Indexable.__init__(self)
     self.kind = kind
     self.color = color
+
+class TestSearcher(unittest.TestCase):
+
+  def setUp(self):
+    self.searcher = Searcher()
+    mikeObj = Person("mike", 15)
+    mikeObj2 = Person("mike", 99)
+    jouhan = Person("Jouhan", 22)
+    jouhan1 = Person("Jouhan", 74)
+    alex = Person("Alex", 15)
+
+  def tearDown(self):
+    #to destroy the database that was created for testing AKA ISOLATION!
+    self.searcher.index.clear()
+
+  def test_searcher_expecting_multiple_values(self):
+    self.assertEquals(len(self.searcher.fromClass("Person").where("age = 15")), 2)
+
+  def test_searcher_excepting_no_values(self):
+    self.assertEquals(len(self.searcher.fromClass('Person').where("age = 20")), 0)
+
 
 class TestOjectSearcher(unittest.TestCase):
   def setUp(self):
@@ -59,7 +85,7 @@ class TestOjectSearcher(unittest.TestCase):
     self.assertEqual(['Jouhan', "Mike"], list(self.book.indexdb['Person']['name'].keys()))
 
   def test_index_has_declared_objects_for_person(self):
-    self.assertEqual(self.person.indexable_data['id'], self.book.indexdb['Person']['name']['Mike'].values()[0].indexable_data['id'])
+    self.assertEqual(self.person.__hash__(), self.book.indexdb['Person']['name']['Mike'].values()[0].__hash__())
 
   def test_index_can_track_changed_ojects(self):
     mike = self.book.indexdb['Person']['name']['Mike'].values()[0]

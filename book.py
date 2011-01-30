@@ -56,7 +56,7 @@ class Book(object):
 
   def setIndexValue(self, obj, name, value):
     klassName = self.getClassName(obj)
-    self.indexdb.get(klassName).setdefault(name, OOBTree()).setdefault(value, PersistentMapping())[obj.indexable_data['id']]= obj
+    self.indexdb.get(klassName).setdefault(name, OOBTree()).setdefault(value, PersistentMapping())[obj.__hash__()]= obj
 
   #TODO
   def removeIndexedValue(self, obj, name, value):
