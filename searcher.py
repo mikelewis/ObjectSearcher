@@ -13,6 +13,8 @@ class ClassAttributeError(Exception):
   pass
 class UnknownOperationError(Exception):
   pass
+class IndexNoValuesError(Exception):
+  pass
 
 class Person(Indexable):
   name = None
@@ -55,15 +57,30 @@ class Searcher(object):
           self.select_attrs.append(attr)
     return self
   def where(self, query):
-    attr, op, value = query.split(" ")
-    value = int(value) if self._isInt(value) else value
+    values = []
+    splitQuery = query.split(" ")
+    if len(splitQuery) == 3:
+      attr, op, value = splitQuery
+      value = int(value) if self._isInt(value) else value
+      values = [value]
+    elif len(splitQuery) == 5:
+      attr, op, value1, _, value2 = splitQuery
+      value1 = int(value1) if self._isInt(value1) else value1
+      value2 = int(value2) if self._isInt(value2) else value2
+      values = [value1, value2]
 
 
-    return self._parseQuery(attr, op, value)
+    return self._parseQuery(attr, op, values)
 
-  def _parseQuery(self, attr, op, value):
+  def _parseQuery(self, attr, op, values):
     if attr not in self.index[self.fromKlass]:
       raise IndexAttributeError()
+    if len(values) == 0:
+      raise IndexNoValuesError()
+
+    if len(values) == 1:
+      value = values[0]
+
     if op == "=":
       if value not in self.index[self.fromKlass][attr]:
         return []
@@ -73,6 +90,8 @@ class Searcher(object):
       return self._treeItemsToList(self.index[self.fromKlass][attr].values(value))
     elif op == ">":
       return self._treeItemsToList(self.index[self.fromKlass][attr].values(value, excludemin=True))
+    elif op == "BETWEEN" and len(values) == 2:
+      return self._treeItemsToList(self.index[self.fromKlass][attr].values(values[0],values[1]))
     else:
       raise UnknownOperationError()
 
