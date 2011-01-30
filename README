@@ -85,3 +85,5 @@ Sample application can be seen within sample.py
 
 Known Issues:
 - When marshalling the data from the file to Indexes, the hash for that object is recomputed, thus on second and more runs, we can't uniquely identify objects. This causes duplicated and other issues
+
+- Can't retrieve all objects in a given class. This will most definitely be implemented ASAP
