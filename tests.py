@@ -97,6 +97,26 @@ class TestSearcher(unittest.TestCase):
     self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 1)
 
 
+  def test_searcher_or_query_count(self):
+    people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
+    self.assertTrue(len(people) == 4)
+  
+  def test_searcher_or_query(self):
+    people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj.__hash__() in hashes and self.mikeObj2.__hash__() and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+ 
+  def test_searcher_and_query_count(self):
+    people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
+    self.assertTrue(len(people) == 1)
+
+
+  def test_searcher_and_query(self):
+    people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj.__hash__() in hashes and self.alex.__hash__() not in hashes)
+
+
 
 class TestOjectSearcher(unittest.TestCase):
   def setUp(self):

@@ -57,21 +57,36 @@ class Searcher(object):
           self.select_attrs.append(attr)
     return self
   def where(self, query):
+    results = []
     values = []
     splitQuery = query.split(" ")
     if len(splitQuery) == 3:
       attr, op, value = splitQuery
       value = int(value) if self._isInt(value) else value
       values = [value]
+      results = self._parseQuery(attr, op, values)
+    elif len(splitQuery) == 7 and "OR" in query:
+      query1, query2 = query.split("OR")
+      firstResults = self.where(query1.strip())
+      secondResults = self.where(query2.strip())
+      results = self._intersection(firstResults, secondResults)
+
+
+    elif len(splitQuery) == 7 and "AND" in query:
+      query1, query2 = query.split("AND")
+      firstResults = self.where(query1.strip())
+      secondResults = self.where(query2.strip())
+      results = self._union(firstResults, secondResults)
+
     elif len(splitQuery) == 5:
       attr, op, value1, _, value2 = splitQuery
       value1 = int(value1) if self._isInt(value1) else value1
       value2 = int(value2) if self._isInt(value2) else value2
       values = [value1, value2]
+      results = self._parseQuery(attr, op, values)
+ 
 
-
-    return self._parseQuery(attr, op, values)
-
+    return results
   def _parseQuery(self, attr, op, values):
     if attr not in self.index[self.fromKlass]:
       raise IndexAttributeError()
@@ -116,3 +131,7 @@ class Searcher(object):
   def _formatSelectData(self, data):
     return [dict(((attr, obj.__dict__.get(attr)) for attr in self.select_attrs)) for obj in data]
 
+  def _union(self, a, b):
+    return list(set(a) & set(b))
+  def _intersection(self, a, b):
+    return list(set(a) | set(b))
