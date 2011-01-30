@@ -90,9 +90,11 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").select("name, age").where("name = Mike")
     self.assertTrue({"name" : "Mike", "age" : 15} in people and {"name" : "Mike", "age" : 99} in people)
 
-
-    
-
+  def test_searcher_change_attributes(self):
+    people = self.searcher.fromClass("Person").where("age = 15")
+    self.assertTrue(len(people) == 2)
+    self.alex.age = 16
+    self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 1)
 
 
 
