@@ -32,10 +32,10 @@ class TestSearcher(unittest.TestCase):
   def setUp(self):
     self.searcher = Searcher()
     mikeObj = Person("mike", 15)
-    mikeObj2 = Person("mike", 99)
+    self.mikeObj2 = Person("mike", 99)
     jouhan = Person("Jouhan", 22)
-    jouhan1 = Person("Jouhan", 74)
-    alex = Person("Alex", 15)
+    self.jouhan1 = Person("Jouhan", 74)
+    self.alex = Person("Alex", 15)
 
   def tearDown(self):
     #to destroy the database that was created for testing AKA ISOLATION!
@@ -46,6 +46,38 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_excepting_no_values(self):
     self.assertEquals(len(self.searcher.fromClass('Person').where("age = 20")), 0)
+
+  def test_searcher_excepting_correct_result(self):
+    person = self.searcher.fromClass("Person").where("age = 99")[0]
+    self.assertTrue(self.mikeObj2.__hash__() == person.__hash__())
+
+  def test_searcher_excepting_one_result(self):
+    people = self.searcher.fromClass("Person").where("age = 99")
+    self.assertTrue(len(people) == 1)
+
+  def test_searcher_equality_search(self):
+    person = self.searcher.fromClass("Person").where("name = Alex")[0]
+    self.assertTrue(person.__hash__(), self.alex.__hash__())
+
+  def test_searcher_greater_or_equal_to_search_two_results(self):
+    people = self.searcher.fromClass("Person").where("age >= 74")
+    self.assertTrue(len(people), 2)
+
+  def test_searcher_greater_or_equal_to_search_correct_results(self):
+    people = self.searcher.fromClass("Person").where("age >= 74")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj2.__hash__() in hashes)
+
+  def test_searcher_greater__search_two_results(self):
+    people = self.searcher.fromClass("Person").where("age > 74")
+    self.assertTrue(len(people), 1)
+
+  def test_searcher_greater_to_search_correct_results(self):
+    people = self.searcher.fromClass("Person").where("age > 74")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj2.__hash__() in hashes)
+
+
 
 
 class TestOjectSearcher(unittest.TestCase):

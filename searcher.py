@@ -5,6 +5,15 @@ import os
 
 os.environ['object_searcher_database'] = "tests.db"
 
+class IndexClassError(Exception):
+  pass
+class IndexAttributeError(Exception):
+  pass
+class ClassAttributeError(Exception):
+  pass
+class UnknownOperationError(Exception):
+  pass
+
 class Person(Indexable):
   name = None
   age = None
@@ -60,13 +69,17 @@ class Searcher(object):
         return []
       else:
         return self.index[self.fromKlass][attr][value].values()
+    elif op == ">=":
+      return self._treeItemsToList(self.index[self.fromKlass][attr].values(value))
+    elif op == ">":
+      return self._treeItemsToList(self.index[self.fromKlass][attr].values(value, excludemin=True))
     else:
-      return None
+      raise UnknownOperationError()
 
+  def _treeItemsToList(self, treeItems):
+    retList = []
+    for treeItem in treeItems:
+      for resultItem in treeItem.values():
+        retList.append(resultItem)
+    return retList
 
-  class IndexClassError(Exception):
-    pass
-  class IndexAttributeError(Exception):
-    pass
-  class ClassAttributeError(Exception):
-    pass
