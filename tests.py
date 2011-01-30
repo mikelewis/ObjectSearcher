@@ -31,9 +31,9 @@ class TestSearcher(unittest.TestCase):
 
   def setUp(self):
     self.searcher = Searcher()
-    mikeObj = Person("mike", 15)
+    self.mikeObj = Person("mike", 15)
     self.mikeObj2 = Person("mike", 99)
-    jouhan = Person("Jouhan", 22)
+    self.jouhan = Person("Jouhan", 22)
     self.jouhan1 = Person("Jouhan", 74)
     self.alex = Person("Alex", 15)
 
@@ -68,7 +68,7 @@ class TestSearcher(unittest.TestCase):
     hashes = [person.__hash__() for person in people]
     self.assertTrue(self.mikeObj2.__hash__() in hashes)
 
-  def test_searcher_greater__search_two_results(self):
+  def test_searcher_greater_search_two_results(self):
     people = self.searcher.fromClass("Person").where("age > 74")
     self.assertTrue(len(people), 1)
 
@@ -76,6 +76,18 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").where("age > 74")
     hashes = [person.__hash__() for person in people]
     self.assertTrue(self.mikeObj2.__hash__() in hashes)
+
+  def test_searcher_between_search_four_results(self):
+    people = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
+    self.assertTrue(len(people), 4)
+
+  def test_searcher_between_search_correct_results(self):
+    people = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.alex.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+
+
+    
 
 
 
