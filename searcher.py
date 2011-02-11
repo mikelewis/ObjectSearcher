@@ -89,6 +89,11 @@ class Searcher(object):
  
 
     return results
+  def all(self):
+    retList = [self.index[self.fromKlass][attr][value].values() for attr in self.index[self.fromKlass] for value in self.index[self.fromKlass][attr]]
+    #flatten
+    retList = [item for sublist in retList for item in sublist]
+    return self._formatReturnedData(list(set(retList)))
   def _parseQuery(self, attr, op, values):
     if attr not in self.index[self.fromKlass]:
       raise IndexAttributeError()

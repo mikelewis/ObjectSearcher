@@ -137,6 +137,15 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").where("age = 99 OR name = Jouhan OR name = Alex")
     self.assertTrue(len(people) == 4)
 
+  def test_searcher_all_query(self):
+    people = self.searcher.fromClass("Person").all()
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj2.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes and self.alex.__hash__() in hashes and self.mikeObj.__hash__() in hashes and self.mikeObj3.__hash__() in hashes and self.tim.__hash__() in hashes)
+
+  def test_searcher_all_query_count(self):
+    people = self.searcher.fromClass("Person").all()
+    self.assertTrue(len(people) == 7)
+
 class TestBook(unittest.TestCase):
   def setUp(self):
     self.book = Book()
