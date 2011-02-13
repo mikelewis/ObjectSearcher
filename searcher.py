@@ -22,7 +22,10 @@ class hashabledict(dict):
   def __hash__(self):
     return hash(self.__key())
   def __eq__(self, other):
-    return self.__key() == other.__key()
+    if isinstance(other, hashabledict):
+      return self.__key() == other.__key()
+    else:
+      return super.__eq__(other)
   
 
 class Person(Indexable):
@@ -165,7 +168,6 @@ class Searcher(object):
     return [hashabledict(((attr, obj.__dict__.get(attr)) for attr in self.select_attrs)) for obj in data]
 
   def _union(self, a, b):
-    print a, b
     return list(set(a) & set(b))
   def _intersection(self, a, b):
     return list(set(a) | set(b))
