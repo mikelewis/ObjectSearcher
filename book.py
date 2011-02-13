@@ -30,7 +30,11 @@ class Book(object):
     if not self.indexdb:
       self.indexdb = self.dbroot['indexdb']
 
-
+  # BE CAREFUL WITH THIS CALL
+  def destroy_index(self):
+    self.indexdb.clear()
+    self.commitTransaction()
+  
   def __del__(self):
     pass
   # self.db.close()

@@ -49,10 +49,16 @@ class Searcher(object):
     if query != "*":
       for attr in query.split(", "):
         attr = attr.strip()
-        if not hasattr(eval(self.fromKlass), attr):
-          raise ClassAttributeError()
-        else:
-          self.select_attrs.append(attr)
+        try:
+          if not hasattr(eval(self.fromKlass), attr):
+            raise ClassAttributeError()
+          else:
+            self.select_attrs.append(attr)
+        except NameError:
+          if self.fromKlass in self.index:
+            self.select_attrs.append(attr)
+          else:
+            raise IndexClassError()
     return self
   def where(self, query):
     results = []
@@ -126,6 +132,7 @@ class Searcher(object):
       retList = data
     if self.select_attrs:
       retList = self._formatSelectData(retList)
+      self.select_attrs = []
     return retList
 
   def _treeItemsToList(self, treeItems):
