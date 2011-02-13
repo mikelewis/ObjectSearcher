@@ -53,3 +53,6 @@ if __name__ == '__main__':
   print "====Black or Red Cars==="
   for car in redOrFerrariCars:
     print car
+
+  searcher._book.destroy_index()
+  

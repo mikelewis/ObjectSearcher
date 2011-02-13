@@ -14,6 +14,17 @@ class UnknownOperationError(Exception):
 class IndexNoValuesError(Exception):
   pass
 
+
+# So set() can work properly on list(dictionary). Set compares the hash, which dict does not have
+class hashabledict(dict):
+  def __key(self):
+    return tuple((k,self[k]) for k in sorted(self))
+  def __hash__(self):
+    return hash(self.__key())
+  def __eq__(self, other):
+    return self.__key() == other.__key()
+  
+
 class Person(Indexable):
   name = None
   age = None
@@ -43,7 +54,7 @@ class Searcher(object):
       raise IndexClassError()
     self.fromKlass = klass
     return self
-  
+
   def select(self, query):
     query = query.strip()
     if query != "*":
@@ -60,7 +71,21 @@ class Searcher(object):
           else:
             raise IndexClassError()
     return self
+
   def where(self, query):
+    results = self._where(query)
+    self._resetState()
+    return results
+
+  def all(self):
+    retList = [self.index[self.fromKlass][attr][value].values() for attr in self.index[self.fromKlass] for value in self.index[self.fromKlass][attr]]
+    #flatten
+    retList = [item for sublist in retList for item in sublist]
+    retData = self._formatReturnedData(list(set(retList))) 
+    self._resetState()
+    return retData
+
+  def _where(self, query):
     results = []
     values = []
     splitQuery = query.split(" ")
@@ -72,17 +97,17 @@ class Searcher(object):
 
     elif "AND" in query and "BETWEEN" not in query:
       splitAnds = query.split("AND")
-      results = self.where(splitAnds.pop(0).strip())
+      results = self._where(splitAnds.pop(0).strip())
       for queryIter in splitAnds:
-        queryIterResult = self.where(queryIter.strip())
+        queryIterResult = self._where(queryIter.strip())
         results = self._union(results, queryIterResult)
 
 
     elif "OR" in query:
       splitOrs = query.split("OR")
-      results = self.where(splitOrs.pop(0).strip())
+      results = self._where(splitOrs.pop(0).strip())
       for queryIter in splitOrs:
-        queryIterResult = self.where(queryIter.strip())
+        queryIterResult = self._where(queryIter.strip())
         results = self._intersection(results, queryIterResult)
 
 
@@ -92,14 +117,9 @@ class Searcher(object):
       value2 = int(value2) if self._isInt(value2) else value2
       values = [value1, value2]
       results = self._parseQuery(attr, op, values)
- 
 
     return results
-  def all(self):
-    retList = [self.index[self.fromKlass][attr][value].values() for attr in self.index[self.fromKlass] for value in self.index[self.fromKlass][attr]]
-    #flatten
-    retList = [item for sublist in retList for item in sublist]
-    return self._formatReturnedData(list(set(retList)))
+
   def _parseQuery(self, attr, op, values):
     if attr not in self.index[self.fromKlass]:
       raise IndexAttributeError()
@@ -132,7 +152,6 @@ class Searcher(object):
       retList = data
     if self.select_attrs:
       retList = self._formatSelectData(retList)
-      self.select_attrs = []
     return retList
 
   def _treeItemsToList(self, treeItems):
@@ -143,9 +162,13 @@ class Searcher(object):
     return retList
 
   def _formatSelectData(self, data):
-    return [dict(((attr, obj.__dict__.get(attr)) for attr in self.select_attrs)) for obj in data]
+    return [hashabledict(((attr, obj.__dict__.get(attr)) for attr in self.select_attrs)) for obj in data]
 
   def _union(self, a, b):
+    print a, b
     return list(set(a) & set(b))
   def _intersection(self, a, b):
     return list(set(a) | set(b))
+  def _resetState(self):
+    self.select_attrs = []
+

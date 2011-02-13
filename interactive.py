@@ -77,10 +77,18 @@ def keyboard(banner=None):
     code.interact(banner=banner, local=namespace)
 
 def start():
-    print "PLEASE EXIT USING CTRL-D, OTHERWISE THE DATABASE WILL NOT EXIST PROPERLY (ZODB ISSUE)"
-    keyboard()
-    searcher._book.destroy_index()
-    print "END"
+  print "=" * 80
+  print "-PLEASE EXIT USING CTRL-D, OTHERWISE THE DATABASE WILL NOT EXIST PROPERLY (ZODB ISSUE)"
+  print "-This is an interactive python shell setup with an already setup searcher, and three classes to play around with (Animal, Course, Post)."
+  print "-To access the searcher instance variable, the variable is searcher"
+  print "- If you want to modify the created variables, they are c1-c4, a1-4, p1-3"
+  print "-An example query: searcher.fromClass(\"Post\").select('title, numComments').where('numComments BETWEEN 10 AND 25')"
+  print "- OR "
+  print "=" * 80
+  print "\n\n\n\n"
+  keyboard()
+  searcher._book.destroy_index()
+  print "END"
 
 
 if __name__ == '__main__':
