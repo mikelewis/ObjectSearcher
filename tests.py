@@ -94,6 +94,32 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").select("name, age").where("name = Mike")
     self.assertTrue({"name" : "Mike", "age" : 15} in people and {"name" : "Mike", "age" : 99} in people)
 
+  def test_searcher_with_select_and_queries(self):
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Mike AND age = 99")
+    self.assertTrue({"name" : "Mike", "age" : 99} in people)
+
+  def test_searcher_with_select_and_queries_count(self):
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Mike AND age = 99")
+    self.assertEquals(len(people), 1)
+
+  def test_searcher_with_select_or_queries(self):
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Alex OR name = Tim")
+    self.assertTrue({"name" : "Alex", "age" : 15} in people and {"name" : "Tim", "age" : 100} in people)
+
+  def test_searcher_with_select_or_queries_count(self):
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Alex OR name = Tim")
+    self.assertEquals(len(people), 2)
+
+  def test_searcher_with_select_between_queries(self):
+    people = self.searcher.fromClass("Person").select("name").where("age BETWEEN 70 AND 100")
+    selfAssertTrue({"name" : "Jouhan"} in people and {"name" : "Mike"} in people and {"name" : "Tim"} in peopld)
+
+  def test_searcher_with_select_between_queries(self):
+    people = self.searcher.fromClass("Person").select("name").where("age BETWEEN 70 AND 100")
+    self.assertEquals(len(people), 3)
+
+
+
   def test_searcher_change_attributes(self):
     people = self.searcher.fromClass("Person").where("age = 15")
     self.assertTrue(len(people) == 3)
