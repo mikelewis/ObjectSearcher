@@ -60,6 +60,7 @@ searcher.py
   searcher.fromClass('Person').where("age >= 15 AND name = Mike")
   searcher.fromClass('Person').select('name').where("age BETWEEN 1 AND 18")
   searcher.fromClass('Person').select('name').where("name = Mike OR name = Jouhan")
+  searcher.fromClass('Person').select('name, age').all()
 
   Currently, our extension allows for the following operations:
     - = (Equality)
@@ -70,9 +71,10 @@ searcher.py
     - OR (an unlimted number of ORS)
   
   and allows for:
-    - fromClass() (Determines which class you want to have) *required
-    - where() (Your filters) *required
-    - select() (Only select attributes only you want) *optional
+    - fromClass(klassSting) (Determines which class you want to have) *required
+    - where(filterString) (Your filters) *required
+    - all() * You need either where, or all
+    - select(selectSTring) (Only select attributes only you want) *optional
 
 Has a stable and strong test suite with over 30 tests, covering all aspects of our extension. You can view this within tests.py
 
@@ -83,7 +85,6 @@ You may run these tests by running: python tests.py
 Sample application can be seen within sample.py
 !!!!!
 
-Known Issues:
-- When marshalling the data from the file to Indexes, the hash for that object is recomputed, thus on second and more runs, we can't uniquely identify objects. This causes duplicated and other issues
-
-- Can't retrieve all objects in a given class. This will most definitely be implemented ASAP
+!!!!!
+Interactive Demo by running interactive.py
+!!!!!
