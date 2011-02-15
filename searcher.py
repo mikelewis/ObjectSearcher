@@ -27,16 +27,6 @@ class hashabledict(dict):
     else:
       return super.__eq__(other)
   
-
-class Person(Indexable):
-  name = None
-  age = None
-  indexableAttrs = ('name', 'age', )
-  def __init__(self, name, age):
-    Indexable.__init__(self)
-    self.name = name
-    self.age = age
-
 class Searcher(object):
   fromKlass = None
   select_attrs = []
