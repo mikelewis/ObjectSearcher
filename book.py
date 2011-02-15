@@ -26,7 +26,7 @@ class Book(object):
     self.conn = self.conn or self.db.open()
     self.dbroot = self.dbroot or self.conn.root()
     if not self.dbroot.has_key('indexdb'):
-      self.dbroot['indexdb'] = OOBTree()
+      self.dbroot['indexdb'] = PersistentMapping()
     if not self.indexdb:
       self.indexdb = self.dbroot['indexdb']
 
@@ -42,7 +42,7 @@ class Book(object):
   def addData(self, data):
     klassName = self.getClassName(data) 
     if klassName not in self.indexdb:
-      self.indexdb[klassName] = OOBTree()
+      self.indexdb[klassName] = PersistentMapping()
 
   def updateIndexedValue(self, obj, attrName, newAttrValue):
     klassName = self.getClassName(obj)
