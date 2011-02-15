@@ -123,19 +123,19 @@ class Searcher(object):
     if len(values) == 1:
       value = values[0]
 
+    data = []
     if op == "=":
-      if value not in self.index[self.fromKlass][attr]:
-        return []
-      else:
-        return self._formatReturnedData(self.index[self.fromKlass][attr][value].values())
+      if value in self.index[self.fromKlass][attr]:
+        data = self.index[self.fromKlass][attr][value].values()
     elif op == ">=":
-      return self._formatReturnedData(self.index[self.fromKlass][attr].values(value))
+      data = self.index[self.fromKlass][attr].values(value)
     elif op == ">":
-      return self._formatReturnedData(self.index[self.fromKlass][attr].values(value, excludemin=True))
+      data = self.index[self.fromKlass][attr].values(value, excludemin=True)
     elif op == "BETWEEN" and len(values) == 2:
-      return self._formatReturnedData(self.index[self.fromKlass][attr].values(values[0],values[1]))
+      data = self.index[self.fromKlass][attr].values(values[0],values[1])
     else:
       raise UnknownOperationError()
+    return self._formatReturnedData(data)
 
   def _formatReturnedData(self, data):
     # DONT HATE
