@@ -16,6 +16,7 @@ class IndexNoValuesError(Exception):
 
 
 # So set() can work properly on list(dictionary). Set compares the hash, which dict does not have
+# Partial credit to http://stackoverflow.com/questions/1151658/python-hashable-dicts
 class hashabledict(dict):
   def __key(self):
     return tuple((k,self[k]) for k in sorted(self))
