@@ -210,7 +210,7 @@ class TestSearcher(unittest.TestCase):
     self.assertTrue(self.tim.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
 
   def test_searcher_with_not_equals_and_other_ops_count(self):
-    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age != 15")
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age > 15")
     self.assertEquals(len(people), 3)
 
   def test_searcher_with_multiple_not_equals_query(self):
