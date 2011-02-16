@@ -30,10 +30,11 @@ class hashabledict(dict):
   
 class Searcher(object):
   fromKlass = None
-  select_attrs = []
+  select_attrs = None
   index = None
   _book = Book()
   def __init__(self):
+    self.select_attrs = []
     self.index = self._book.indexdb
 
   def _isInt(self, n):
@@ -127,6 +128,9 @@ class Searcher(object):
     if op == "=":
       if value in self.index[self.fromKlass][attr]:
         data = self.index[self.fromKlass][attr][value].values()
+    elif op == "==":
+      value = True if value == "True" else False
+      data = self.index[self.fromKlass][attr][value].values()
     elif op == ">=":
       data = self.index[self.fromKlass][attr].values(value)
     elif op == ">":

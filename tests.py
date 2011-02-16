@@ -23,11 +23,13 @@ class Person(Indexable):
 class Animal(Indexable):
   kind = None
   color = None
-  indexableAttrs = ('kind', )
-  def __init__(self, kind="", color=""):
+  mammal = False
+  indexableAttrs = ('kind', 'mammal', )
+  def __init__(self, kind="", color="", mammal=False):
     Indexable.__init__(self)
     self.kind = kind
     self.color = color
+    self.mammal = mammal
 
 class TestSearcher(unittest.TestCase):
 
@@ -40,6 +42,11 @@ class TestSearcher(unittest.TestCase):
     self.jouhan1 = Person("Jouhan", 74)
     self.alex = Person("Alex", 15)
     self.tim = Person("Tim", 100)
+    self.cat = Animal("Cat", "Red", True)
+    self.fish1 = Animal("Fish", "Blue", False)
+    self.fish2 = Animal("Fish", "Red", False)
+    self.dog = Animal("Dog", "Black", True)
+    self.human = Animal("Human", "White", True)
 
   def tearDown(self):
     #to destroy the database that was created for testing AKA ISOLATION!
@@ -112,13 +119,29 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_with_select_between_queries(self):
     people = self.searcher.fromClass("Person").select("name").where("age BETWEEN 70 AND 100")
-    selfAssertTrue({"name" : "Jouhan"} in people and {"name" : "Mike"} in people and {"name" : "Tim"} in peopld)
+    selfAssertTrue({"name" : "Jouhan"} in people and {"name" : "Mike"} in people and {"name" : "Tim"} in people)
 
   def test_searcher_with_select_between_queries(self):
     people = self.searcher.fromClass("Person").select("name").where("age BETWEEN 70 AND 100")
     self.assertEquals(len(people), 3)
 
+  def test_searcher_with_true_value_query(self):
+    animals = self.searcher.fromClass("Animal").where("mammal == True")
+    hashes = [animal.__hash__() for animal in animals]
+    self.assertTrue(self.human.__hash__() in hashes and self.cat.__hash__() in hashes and self.dog.__hash__() in hashes)
 
+  def test_searcher_with_true_value_count(self):
+    animals = self.searcher.fromClass("Animal").where("mammal == True")
+    self.assertEquals(len(animals), 3)
+  
+  def test_searcher_with_false_value_query(self):
+    animals = self.searcher.fromClass("Animal").where("mammal == False")
+    hashes = [animal.__hash__() for animal in animals]
+    self.assertTrue(self.fish1.__hash__() in hashes and self.fish2.__hash__() in hashes)
+
+  def test_searcher_with_false_value_count(self):
+    animals = self.searcher.fromClass("Animal").where("mammal == False")
+    self.assertEquals(len(animals), 2)
 
   def test_searcher_change_attributes(self):
     people = self.searcher.fromClass("Person").where("age = 15")
