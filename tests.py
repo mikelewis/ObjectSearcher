@@ -64,7 +64,7 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_excepting_one_result(self):
     people = self.searcher.fromClass("Person").where("age = 99")
-    self.assertTrue(len(people) == 1)
+    self.assertEquals(len(people), 1)
 
   def test_searcher_equality_search(self):
     person = self.searcher.fromClass("Person").where("name = Alex")[0]
@@ -72,30 +72,30 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_greater_or_equal_to_search_two_results(self):
     people = self.searcher.fromClass("Person").where("age >= 74")
-    self.assertTrue(len(people), 2)
+    self.assertEquals(len(people), 3)
 
   def test_searcher_greater_or_equal_to_search_correct_results(self):
     people = self.searcher.fromClass("Person").where("age >= 74")
     hashes = [person.__hash__() for person in people]
-    self.assertTrue(self.mikeObj2.__hash__() in hashes)
+    self.assertTrue(self.mikeObj2.__hash__() in hashes and self.jouhan1.__hash__() in hashes and self.tim.__hash__() in hashes)
 
   def test_searcher_greater_search_two_results(self):
     people = self.searcher.fromClass("Person").where("age > 74")
-    self.assertTrue(len(people), 1)
+    self.assertEquals(len(people), 2)
 
   def test_searcher_greater_to_search_correct_results(self):
     people = self.searcher.fromClass("Person").where("age > 74")
     hashes = [person.__hash__() for person in people]
-    self.assertTrue(self.mikeObj2.__hash__() in hashes)
+    self.assertTrue(self.mikeObj2.__hash__() in hashes and self.tim.__hash__() in hashes)
 
   def test_searcher_between_search_four_results(self):
     people = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
-    self.assertTrue(len(people), 4)
+    self.assertEquals(len(people), 5)
 
   def test_searcher_between_search_correct_results(self):
     people = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
     hashes = [person.__hash__() for person in people]
-    self.assertTrue(self.mikeObj.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.alex.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+    self.assertTrue(self.mikeObj.__hash__() in hashes and self.mikeObj3.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.alex.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
 
   def test_searcher_with_select_two_dicts(self):
     people = self.searcher.fromClass("Person").select("name, age").where("name = Mike")
@@ -153,13 +153,13 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_change_attributes(self):
     people = self.searcher.fromClass("Person").where("age = 15")
-    self.assertTrue(len(people) == 3)
+    self.assertEquals(len(people), 3)
     self.alex.age = 16
     self.assertTrue(len(self.searcher.fromClass("Person").where("age = 15")) == 2)
 
   def test_searcher_or_query_count(self):
     people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
-    self.assertTrue(len(people) == 5)
+    self.assertEquals(len(people), 5)
   
   def test_searcher_or_query(self):
     people = self.searcher.fromClass("Person").where("name = Jouhan OR name = Mike")
@@ -168,7 +168,7 @@ class TestSearcher(unittest.TestCase):
  
   def test_searcher_and_query_count(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
-    self.assertTrue(len(people) == 2)
+    self.assertEquals(len(people), 2)
 
   def test_searcher_and_query(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
@@ -182,7 +182,7 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_multiple_ands_query_count(self):
     people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike AND firstName = Michael")
-    self.assertTrue(len(people) == 1)
+    self.assertEquals(len(people), 1)
 
 
   def test_searcher_multiple_or_query(self):
@@ -192,7 +192,7 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_multiple_or_query_count(self):
     people = self.searcher.fromClass("Person").where("age = 99 OR name = Jouhan OR name = Alex")
-    self.assertTrue(len(people) == 4)
+    self.assertEquals(len(people), 4)
 
   def test_searcher_all_query(self):
     people = self.searcher.fromClass("Person").all()
@@ -201,7 +201,7 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_all_query_count(self):
     people = self.searcher.fromClass("Person").all()
-    self.assertTrue(len(people) == 7)
+    self.assertEquals(len(people), 7)
   
   def test_searcher_with_not_equals_query(self):
     people = self.searcher.fromClass("Person").where("name != Mike")
@@ -210,7 +210,7 @@ class TestSearcher(unittest.TestCase):
 
   def test_searcher_with_not_equals_count(self):
     people = self.searcher.fromClass("Person").where("name != Mike")
-    self.assertTrue(len(people), 4)
+    self.assertEquals(len(people), 4)
 
   def test_searcher_with_not_equals_and_other_ops_query(self):
     people = self.searcher.fromClass("Person").where("name != Mike AND age > 15")
@@ -254,6 +254,31 @@ class TestSearcher(unittest.TestCase):
   def test_searcher_with_not_equals_false_value_count(self):
     animals = self.searcher.fromClass("Animal").where("mammal != False")
     self.assertEquals(len(animals), 3)
+
+  def test_searcher_with_multiple_queries_same_class(self):
+    temp = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
+    people = self.searcher.fromClass("Person").where("age > 74")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.mikeObj2.__hash__() in hashes and self.tim.__hash__() in hashes)
+    self.assertEquals(len(people), 2)
+
+  def test_searcher_with_mulitple_queries_same_class_select(self):
+    t = self.searcher.fromClass("Person").select("name").where("age BETWEEN 70 AND 100")
+    people = self.searcher.fromClass("Person").select("name, age").where("name = Alex OR name = Tim")
+    self.assertTrue({"name" : "Alex", "age" : 15} in people and {"name" : "Tim", "age" : 100} in people)
+    self.assertEquals(len(people), 2)
+
+  def test_searcher_with_multiple_queries_different_class(self):
+    temp = self.searcher.fromClass("Person").where("age BETWEEN 15 AND 74")
+    animals = self.searcher.fromClass("Animal").where("mammal != False")
+    hashes = [animal.__hash__() for animal in animals]
+    self.assertTrue(self.human.__hash__() in hashes and self.cat.__hash__() in hashes and self.dog.__hash__() in hashes)
+    self.assertEquals(len(animals), 3)
+
+
+
+
+
 
 
 class TestBook(unittest.TestCase):
