@@ -194,6 +194,59 @@ class TestSearcher(unittest.TestCase):
   def test_searcher_all_query_count(self):
     people = self.searcher.fromClass("Person").all()
     self.assertTrue(len(people) == 7)
+  
+  def test_searcher_with_not_equals_query(self):
+    people = self.searcher.fromClass("Person").where("name != Mike")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.alex.__hash__() in hashes and self.tim.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+
+  def test_searcher_with_not_equals_count(self):
+    people = self.searcher.fromClass("Person").where("name != Mike")
+    self.assertTrue(len(people), 4)
+
+  def test_searcher_with_not_equals_and_other_ops_query(self):
+    people = self.searcher.fromClass("Person").where("name != Mike AND age > 15")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.tim.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+
+  def test_searcher_with_not_equals_and_other_ops_count(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age != 15")
+    self.assertEquals(len(people), 3)
+
+  def test_searcher_with_multiple_not_equals_query(self):
+    people = self.searcher.fromClass("Person").where("name != Mike AND age != 15")
+    hashes = [person.__hash__() for person in people]
+    self.assertTrue(self.tim.__hash__() in hashes and self.jouhan.__hash__() in hashes and self.jouhan1.__hash__() in hashes)
+
+  def test_searcher_with_multiple_not_equals_count(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age != 15")
+    self.assertEquals(len(people), 3)
+
+  def test_searcher_with_multiple_not_equals_select_query(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age != 15")
+    self.assertTrue({"age" : 22} in people and {"age" : 74} in people and {"age" : 100} in people)
+
+  def test_searcher_with_multiple_not_equals_select_count(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike AND age != 15")
+    self.assertEquals(len(people), 3)
+  
+  def test_searcher_with_not_equals_select_query(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike")
+    self.assertTrue({"age" : 22} in people and {"age" : 74} in people and {"age" : 15} in people and {"age" : 100} in people)
+
+  def test_searcher_with_not_equals_select_count(self):
+    people = self.searcher.fromClass("Person").select('age').where("name != Mike")
+    self.assertEquals(len(people), 4)
+
+  def test_searcher_with_not_equals_false_value_query(self):
+    animals = self.searcher.fromClass("Animal").where("mammal != False")
+    hashes = [animal.__hash__() for animal in animals]
+    self.assertTrue(self.human.__hash__() in hashes and self.cat.__hash__() in hashes and self.dog.__hash__() in hashes)
+
+  def test_searcher_with_not_equals_false_value_count(self):
+    animals = self.searcher.fromClass("Animal").where("mammal != False")
+    self.assertEquals(len(animals), 3)
+
 
 class TestBook(unittest.TestCase):
   def setUp(self):

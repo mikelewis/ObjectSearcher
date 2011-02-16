@@ -72,12 +72,13 @@ class Searcher(object):
     self._resetState()
     return results
 
-  def all(self):
+  def all(self, resetState = True, selectData = True):
     retList = [self.index[self.fromKlass][attr][value].values() for attr in self.index[self.fromKlass] for value in self.index[self.fromKlass][attr]]
     #flatten
     retList = [item for sublist in retList for item in sublist]
-    retData = self._formatReturnedData(list(set(retList))) 
-    self._resetState()
+    retData = self._formatReturnedData(list(set(retList)), selectData) 
+    if resetState:
+      self._resetState()
     return retData
 
   def _where(self, query):
@@ -131,6 +132,12 @@ class Searcher(object):
     elif op == "==":
       value = True if value == "True" else False
       data = self.index[self.fromKlass][attr][value].values()
+    elif op == "!=":
+      if value == "True" or value == "False":
+        value = True if value == "True" else False
+      equalsData = self.index[self.fromKlass][attr][value].values()
+      allData = self.all(False, False)
+      data = self._difference(allData, equalsData)
     elif op == ">=":
       data = self.index[self.fromKlass][attr].values(value)
     elif op == ">":
@@ -141,14 +148,14 @@ class Searcher(object):
       raise UnknownOperationError()
     return self._formatReturnedData(data)
 
-  def _formatReturnedData(self, data):
+  def _formatReturnedData(self, data, selectData = True):
     # DONT HATE
     retList = []
     if "OOBTree" in str(type(data)):
       retList = self._treeItemsToList(data)
     else:
       retList = data
-    if self.select_attrs:
+    if self.select_attrs and selectData:
       retList = self._formatSelectData(retList)
     return retList
 
@@ -166,6 +173,8 @@ class Searcher(object):
     return list(set(a) & set(b))
   def _intersection(self, a, b):
     return list(set(a) | set(b))
+  def _difference(self, a, b):
+    return list(set(a) - set(b))
   def _resetState(self):
     self.select_attrs = []
 
