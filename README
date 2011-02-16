@@ -69,6 +69,11 @@ searcher.py
     - BETWEEN (Between two values)
     - AND (an unlimited number of ANDS)
     - OR (an unlimted number of ORS)
+
+  Currently, our extension allows for the following searchable types:
+    - ints
+    - strings
+    - booleans
   
   and allows for:
     - fromClass(klassSting) (Determines which class you want to have) *required
