@@ -105,6 +105,14 @@ class TestSearcher(unittest.TestCase):
     people = self.searcher.fromClass("Person").select("name, age").where("name = Mike AND age = 99")
     self.assertTrue({"name" : "Mike", "age" : 99} in people)
 
+  def test_searcher_with_select_two_dicts_no_space(self):
+    people = self.searcher.fromClass("Person").select("name,age").where("name = Mike")
+    self.assertTrue({"name" : "Mike", "age" : 15} in people and {"name" : "Mike", "age" : 99} in people)
+
+  def test_searcher_with_select_and_queries_no_space(self):
+    people = self.searcher.fromClass("Person").select("name,age").where("name = Mike AND age = 99")
+    self.assertTrue({"name" : "Mike", "age" : 99} in people)
+
   def test_searcher_with_select_and_queries_count(self):
     people = self.searcher.fromClass("Person").select("name, age").where("name = Mike AND age = 99")
     self.assertEquals(len(people), 1)

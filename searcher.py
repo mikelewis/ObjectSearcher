@@ -53,7 +53,7 @@ class Searcher(object):
   def select(self, query):
     query = query.strip()
     if query != "*":
-      for attr in query.split(", "):
+      for attr in query.split(","):
         attr = attr.strip()
         try:
           if not hasattr(eval(self.fromKlass), attr):
