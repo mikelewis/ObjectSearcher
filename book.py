@@ -36,8 +36,7 @@ class Book(object):
     self.commitTransaction()
   
   def __del__(self):
-    pass
-  # self.db.close()
+    self.db.pack()
 
   def addData(self, data):
     klassName = self.getClassName(data) 
