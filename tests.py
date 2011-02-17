@@ -213,7 +213,26 @@ class TestSearcher(unittest.TestCase):
     self.assertTrue(self.human.__hash__() in hashes and self.cat.__hash__() in hashes and self.dog.__hash__() in hashes)
     self.assertEquals(len(animals), 3)
 
+  def test_searcher_and_query_lessthan_name(self):
+    people = self.searcher.fromClass("Person").where("name < Jouhan")
+    self.assertTrue(len(people) == 1)
+    
+  def test_searcher_and_query_lessthanequal_name(self):
+    people = self.searcher.fromClass("Person").where("name <= Jouhan")
+    self.assertTrue(len(people) == 3)
 
+
+  def test_searcher_and_query_between_swithed_names(self):
+    people = self.searcher.fromClass("Person").where("name BETWEEN Tim AND Jouhan")
+    self.assertTrue(len(people) == 6)
+
+  def test_searcher_and_query_count(self):
+    people = self.searcher.fromClass("Person").where("age = 15 AND name = Mike")
+    self.assertTrue(len(people) == 2)
+
+  def test_searcher_between_inverted_values(self):
+    people = self.searcher.fromClass("Person").where("age BETWEEN 74 AND 15")
+    self.assertTrue(len(people), 4)
 
 
 

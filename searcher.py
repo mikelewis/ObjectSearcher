@@ -27,7 +27,7 @@ class hashabledict(dict):
       return self.__key() == other.__key()
     else:
       return super.__eq__(other)
-  
+
 class Searcher(object):
   fromKlass = None
   select_attrs = None
@@ -142,7 +142,17 @@ class Searcher(object):
       data = self.index[self.fromKlass][attr].values(value)
     elif op == ">":
       data = self.index[self.fromKlass][attr].values(value, excludemin=True)
+    elif op == "<":
+      minKey = self.index[self.fromKlass][attr].minKey()
+      data = self.index[self.fromKlass][attr].values(minKey, value, excludemax=True)
+    elif op =="<=":
+      minKey = self.index[self.fromKlass][attr].minKey()
+      data = self.index[self.fromKlass][attr].values(minKey, value)
     elif op == "BETWEEN" and len(values) == 2:
+      if values[1] < values[0]:
+        t = values[0]
+        values[0] = values[1]
+        values[1] = t
       data = self.index[self.fromKlass][attr].values(values[0],values[1])
     else:
       raise UnknownOperationError()
