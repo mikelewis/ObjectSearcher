@@ -150,9 +150,7 @@ class Searcher(object):
       data = self.index[self.fromKlass][attr].values(minKey, value)
     elif op == "BETWEEN" and len(values) == 2:
       if values[1] < values[0]:
-        t = values[0]
-        values[0] = values[1]
-        values[1] = t
+        values[0], values[1] = values[1], values[0]
       data = self.index[self.fromKlass][attr].values(values[0],values[1])
     else:
       raise UnknownOperationError()
